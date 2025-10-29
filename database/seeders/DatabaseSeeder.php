@@ -13,10 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::table('loans')->delete();
+        DB::table('books')->delete();
+        DB::table('categories')->delete();
         DB::table('user')->delete();
 
         $this->call([
-            UserSeeder::class
+            UserSeeder::class,
+            Categorie::class,
+            Book::class,
+            Loan::class,
         ]);
     }
 }
