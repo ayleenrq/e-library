@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('telp', 15)->unique();
             $table->string('address', 255);
+            $table->string('reset_token', 100)->nullable();
             $table->timestamps();
         });
     }

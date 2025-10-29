@@ -2,41 +2,112 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    public function login()
+    public function login(Request $request): RedirectResponse
     {
-        if(Auth::check()){
-            return redirect('/'); 
+        try {
+            $request->validate([
+                'email'         => 'required|string|max:20',
+                'password'      => 'required|string|min:6',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if(!$user){
+                return back()->withErrors([
+                    'errors' => 'Incorrect email or password',
+                ]);
+            }
+
+            if($request->kata_sandi !== Hash::make($user->kata_sandi)){
+                return back()->withErrors([
+                    'errors' => 'Incorrect email or password',
+                ]);
+            }
+
+            Auth::login($user);
+            Session::put([
+                'id_user'   => $user->id_user,
+                'email'     => $user->email,
+                'role'      => $user->role,
+            ]);
+
+            switch ($user->role) {
+                case 'ADMIN':
+                    Session::put([
+                        'id_user'   => $user->id_user,
+                        'nama'     => $user->nama,
+                        'role'      => $user->role,
+                    ]);
+                    return to_route('admin.dashboard');
+                    break;
+                case 'USER':
+                    Session::put([
+                        'id_user'   => $user->id_user,
+                        'nama'     => $user->nama,
+                        'role'      => $user->role,
+                    ]);
+                    return to_route('user.dashboard');
+                    break;
+                default:
+                    return to_route('login');
+                    break;
+            }
+        } catch (ValidationException $validation) {
+            return back()->withErrors($validation->errors());
+        } catch (Exception $exception) {
+            return back()->withErrors(['errors' => 'An error occurred. Please try again later.']);
         }
-        return view('pages.auth.login'); 
     }
 
-    public function postlogin(Request $request)
+    public function show_reset_password($token): View
     {
-        $credentials = $request->validate([
-            'username'  => 'required|string|max:20',
-            'password'  => 'required|string|min:6',
-        ]);
+        try {
+            $user = User::where('reset_token', $token)->first();
 
-        if(Auth::attempt($credentials)){
-            $request->session()->regenerate();
-            return redirect('/');
+            $data = [
+                'token' => $token,
+                'email' => $user->email ?? '',
+            ];
+
+            if(!$user){
+                $data['errors'] = 'Invalid reset token';
+                return view('pages.auth.reset-password', $data);
+            }
+
+            return view('pages.auth.reset-password', $data);
+        } catch (Exception $exception) {
+            return back()->withErrors(['errors' => 'An error occurred. Please try again later.']);
         }
-        
-        return back()->withErrors([
-            'username' => 'Username atau password salah',
-        ]);
+    }
+    
+    public function reset_password(Request $request): RedirectResponse
+    {
+        try {
+            
+        } catch (ValidationException $validation) {
+            return back()->withErrors($validation->errors());
+        } catch (Exception $exception) {
+            return back()->withErrors(['errors' => 'An error occurred. Please try again later.']);
+        }
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();   
-        return redirect('login'); 
+        return to_route('login'); 
     }
 }
