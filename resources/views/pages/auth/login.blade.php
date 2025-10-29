@@ -4,10 +4,6 @@
     Masuk
 @endsection
 
-@section('deskripsi')
-    Selamat datang!
-@endsection
-
 @section('konten')
     <main class="bg-white shadow-lg rounded-xl p-7 w-full max-w-sm">
         <div class="flex flex-col items-center justify-center mb-4">

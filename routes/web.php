@@ -15,8 +15,8 @@ use App\Http\Controllers\BukuController;
 |
 */
 
-Route::get('/login', [AuthController::class, 'login'])->name('login');
-Route::post('/login', [AuthController::class, 'postlogin']);
+Route::get('/login', fn() => view('pages.auth.login'))->name('login')->withoutMiddleware('auth');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () { // artinya semua route di dalam group ini harus login dulu
