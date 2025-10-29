@@ -110,4 +110,27 @@ class AuthController extends Controller
         $request->session()->regenerateToken();   
         return to_route('login'); 
     }
+
+    public function register(Request $request): RedirectResponse
+    {
+        try {
+            $request->validate([
+                'email'         => 'required|string|max:20',
+                'password'      => 'required|string|min:6',
+                'nama'          => 'required|string|max:20',
+            ]);
+
+            $user = new UserModel();
+            $user->email = $request->email;
+            $user->password = bcrypt($request->password);
+            $user->nama = $request->nama;
+            $user->save();
+
+            return to_route('login')->with('success', 'Registration successful. Please login.');
+        } catch (ValidationException $validation) {
+            return back()->withErrors($validation->errors());
+        } catch (Exception $exception) {
+            return back()->withErrors(['errors' => 'An error occurred. Please try again later.']);
+        }
+    }
 }
