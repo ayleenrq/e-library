@@ -1,42 +1,33 @@
 @extends('layouts.main')
 
 @section('judul')
-    Create Account - Messimo
+    Create Account
 @endsection
 
 @section('konten')
     <div class="min-h-screen flex">
-        <!-- Right Side - Form -->
         <div class="w-full flex items-center justify-center p-8">
             <div class="w-full max-w-md">
-                <!-- Form Card -->
                 <div class="bg-white rounded-2xl shadow-sm p-8">
                     <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Create<br>account</h2>
                     
                     <form action="{{ url('register') }}" method="POST">
                         @csrf
-                        
-                        <!-- Email Input -->
-                        <div class="mb-4">
-                            <input 
-                                type="email" 
-                                name="email" 
-                                placeholder="Email address" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                required
-                            >
-                        </div>
 
-                        <!-- Password Input -->
+                        <x-input
+                            name="email"
+                            type="email"
+                            placeholder="Email address"
+                            required
+                        />
+
                         <div class="mb-6 relative">
-                            <input 
-                                type="password" 
-                                name="password" 
-                                id="password"
-                                placeholder="Password" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            <x-input
+                                name="password"
+                                type="password"
+                                placeholder="Password"
                                 required
-                            >
+                            />
                             <button 
                                 type="button" 
                                 onclick="togglePassword()"
@@ -49,7 +40,6 @@
                             </button>
                         </div>
 
-                        <!-- Create Account Button -->
                         <button 
                             type="submit" 
                             class="w-full bg-green-400 hover:bg-green-500 text-gray-900 font-semibold py-3 rounded-lg transition duration-200 mb-6"
@@ -57,10 +47,8 @@
                             Create account
                         </button>
 
-                        <!-- Divider -->
                         <div class="text-center text-sm text-gray-500 mb-6">or sign up with</div>
 
-                        <!-- Social Login Buttons -->
                         <div class="flex gap-3 justify-center mb-6">
                             <button type="button" class="w-12 h-12 bg-green-100 hover:bg-green-200 rounded-lg flex items-center justify-center transition">
                                 <span class="text-xl font-bold text-gray-700">G</span>
@@ -77,14 +65,12 @@
                             </button>
                         </div>
 
-                        <!-- Terms -->
                         <p class="text-xs text-center text-gray-500 mb-6">
                             By creating an account you agree to e-Library's
                             <a href="#" class="text-green-600 hover:underline">Terms of Services</a> and 
                             <a href="#" class="text-green-600 hover:underline">Privacy Policy</a>.
                         </p>
 
-                        <!-- Login Link -->
                         <p class="text-sm text-center text-gray-600">
                             Have an account? 
                             <a href="{{ url('login') }}" class="text-green-600 hover:underline font-semibold">Log in</a>
