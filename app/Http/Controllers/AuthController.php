@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -18,19 +17,13 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email'         => 'required|string|max:20',
+                'email'         => 'required|string|max:255',
                 'password'      => 'required|string|min:6',
             ]);
 
             $user = User::where('email', $request->email)->first();
 
-            if(!$user){
-                return back()->withErrors([
-                    'errors' => 'Incorrect email or password',
-                ]);
-            }
-
-            if($request->kata_sandi !== Hash::make($user->kata_sandi)){
+            if (!$user || !Hash::check($request->password, $user->password)) {
                 return back()->withErrors([
                     'errors' => 'Incorrect email or password',
                 ]);
@@ -41,28 +34,17 @@ class AuthController extends Controller
                 'id_user'   => $user->id_user,
                 'email'     => $user->email,
                 'role'      => $user->role,
+                'name'      => $user->name,
             ]);
 
-            switch ($user->role) {
+            switch (strtoupper($user->role)) {
                 case 'ADMIN':
-                    Session::put([
-                        'id_user'   => $user->id_user,
-                        'nama'     => $user->nama,
-                        'role'      => $user->role,
-                    ]);
                     return to_route('admin.dashboard');
-                    break;
                 case 'USER':
-                    Session::put([
-                        'id_user'   => $user->id_user,
-                        'nama'     => $user->nama,
-                        'role'      => $user->role,
-                    ]);
                     return to_route('user.dashboard');
-                    break;
                 default:
-                    return to_route('login');
-                    break;
+                    Auth::logout();
+                    return to_route('login')->withErrors(['errors' => 'Unauthorized role']);
             }
         } catch (ValidationException $validation) {
             return back()->withErrors($validation->errors());
@@ -115,20 +97,20 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email'         => 'required|string|max:20',
-                'password'      => 'required|string|min:6',
-                'nama'          => 'required|string|max:20',
+                'email'    => 'required|string|email|max:100|unique:user,email',
+                'password' => 'required|string|min:6',
+                'name'     => 'required|string|max:100',
             ]);
 
-            $user = new UserModel();
+            $user = new User();
             $user->email = $request->email;
             $user->password = bcrypt($request->password);
-            $user->nama = $request->nama;
+            $user->name = $request->name;
             $user->save();
 
-            return to_route('login')->with('success', 'Registration successful. Please login.');
+            return redirect()->route('login')->with('success', 'Registration successful. Please login.');
         } catch (ValidationException $validation) {
-            return back()->withErrors($validation->errors());
+            return back()->withErrors($validation->errors())->withInput();
         } catch (Exception $exception) {
             return back()->withErrors(['errors' => 'An error occurred. Please try again later.']);
         }
