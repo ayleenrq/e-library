@@ -8,10 +8,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <title>@yield('judul') | e-Library</title>
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
 
-<body class="bg-[#edf0fc] h-screen flex items-center justify-center">
-    @yield('konten')
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    @include('shared.navigation.header')
+    @include('shared.navigation.navbar')
+    
+    <div class="flex flex-1">
+        @if(!in_array(Route::currentRouteName(), ['login', 'register', 'password.request']))
+            @include('shared.navigation.sidebar')
+        @endif
+        
+        <main class="flex-1 {{ in_array(Route::currentRouteName(), ['login', 'register', 'password.request']) ? 'w-full' : '' }}">
+            @yield('konten')
+        </main>
+    </div>
+    
+    @include('shared.navigation.footer')
 </body>
-
 </html>
