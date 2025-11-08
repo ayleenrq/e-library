@@ -33,6 +33,9 @@ Route::middleware(['auth'])->group(function () { // artinya semua route di dalam
 
     Route::middleware(['authorize:ADMIN'])->prefix('admin')->group(function () {
         Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
+        Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
+        Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
+        Route::get('/dashboard', fn() => view('pages.admin.dashboard'))->name('admin.dashboard');
     });
 
     Route::middleware(['authorize:USER'])->prefix('user')->group(function () {
